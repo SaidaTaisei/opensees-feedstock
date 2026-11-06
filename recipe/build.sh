@@ -13,7 +13,11 @@ if [[ "$target_platform" == osx-* ]]; then
     export TCL_LIB_PATH="${PREFIX}/lib/libtcl8.6.dylib"
     export SCALAPACK_LIB_PATH="${PREFIX}/lib/libscalapack.dylib"
     export EXT=".dylib"
-    
+
+    # The final link is done by clang++, which does not pull in the Fortran
+    # runtime needed by the static Fortran archives (ARPACK, PML, SDM-UC, ...).
+    export LDFLAGS="${LDFLAGS} -lgfortran"
+
     # macOS requires undefined dynamic lookup for Python C-extensions
     export SHARED_LDFLAGS="${LDFLAGS} -undefined dynamic_lookup"
 else
