@@ -52,6 +52,13 @@ if errorlevel 1 exit 1
 set "FWD_SRC_DIR=%SRC_DIR:\=/%"
 set "FWD_PREFIX=%PREFIX:\=/%"
 
+:: Python >= 3.15 on conda-forge installs headers in include\python (CFEP-65).
+:: find_package(Python3 COMPONENTS Development) without Interpreter cannot
+:: locate them, so ask the interpreter for the include directory.
+for /f "usebackq delims=" %%i in (`python -c "import sysconfig; print(sysconfig.get_paths()['include'].replace('\\', '/'))"`) do set "PY_INCLUDE_DIR=%%i"
+if not defined PY_INCLUDE_DIR exit 1
+echo Python include dir: %PY_INCLUDE_DIR%
+
 :: Setup build directory
 mkdir build
 cd build
@@ -72,6 +79,7 @@ cmake -G "Ninja" %CMAKE_ARGS% ^
       -DTCL_INCLUDE_PATH="%LIBRARY_PREFIX%/include" ^
       -DPython_EXECUTABLE="%FWD_PREFIX%/python.exe" ^
       -DPython3_EXECUTABLE="%FWD_PREFIX%/python.exe" ^
+      -DPython3_INCLUDE_DIR="%PY_INCLUDE_DIR%" ^
       -DPython_FIND_REGISTRY=NEVER ^
       -DPython3_FIND_REGISTRY=NEVER ^
       -DOpenSees_ENABLE_MPI=OFF ^
