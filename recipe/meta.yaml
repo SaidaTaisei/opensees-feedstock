@@ -34,6 +34,7 @@ requirements:
     - openmpi  # [unix]
   host:
     - python
+    - libpython  # [py>=315]
     - pip
     - setuptools
     - libblas * *openblas  # [unix]
